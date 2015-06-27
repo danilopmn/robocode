@@ -14,6 +14,8 @@ import java.util.Random;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+import ia.Cromossomo.Pair;
+
 public class Natureza {
 
 	static String PATH = "./robots/ia/";
@@ -31,7 +33,22 @@ public class Natureza {
 	
 	public ArrayList<Cromossomo> criarPopulacaoInicial(){
 		ArrayList<Cromossomo> populacao = new ArrayList<Cromossomo>();
-		for(int i = 0; i < tamanho; i++){
+		for(int y = 0; y <= Cromossomo.MAX_BULLET_POWER; y++){
+			for( int f = -5; f <= 5; f++){
+				Cromossomo x = new Cromossomo();
+				x.randomPopulate();
+				for(int i = 0; i < Cromossomo.VELOCITY; i++){
+					for(int h = 0; h < Cromossomo.DIRECTIONS; h++){
+						for(int z = 0; z < Cromossomo.DISTANCE; z++){
+							x.genes[i][h][z].first = y;
+							x.genes[i][h][z].second = f*5;
+						}
+					}
+				}
+				populacao.add(x);
+			}
+		}
+		for(int i = 0; i < tamanho - populacao.size(); i++){
 			Cromossomo x = new Cromossomo();
 			x.randomPopulate();
 			populacao.add(x);
@@ -39,30 +56,38 @@ public class Natureza {
 		return populacao;
 	}
 	
-	private ArrayList<Cromossomo> selecaoNatural(HashMap<Cromossomo,Double> cromossomoScores){
-		ArrayList<Cromossomo> populacaoSobrevivente = new ArrayList<Cromossomo>();
+	private Cromossomo selecaoNatural(HashMap<Cromossomo,Double> cromossomoScores){
 		List<Double> scores = new ArrayList<Double>(cromossomoScores.values());
 		Collections.sort(scores);
-		double cut = scores.get(Math.max(scores.size()-tamanho/fracaoReducao,0));
+		double melhor = scores.get(scores.size()-1);
+		Cromossomo sobrevivente = null;
 		for (Map.Entry<Cromossomo,Double> entry : cromossomoScores.entrySet()) {
 		    Cromossomo key = entry.getKey();
+		    if(sobrevivente == null) sobrevivente = key;
 		    double value = entry.getValue();
-		    if(value >= cut){
-		    	populacaoSobrevivente.add(key);
-		    }
+		    if( value > melhor - 0.0001) sobrevivente = key;
 		}
-		return populacaoSobrevivente;
+		return sobrevivente;
 	}
 	
 	public ArrayList<Cromossomo> proximaGeracao(HashMap<Cromossomo,Double> cromossomoScores){
-		ArrayList<Cromossomo> novaGeracao = selecaoNatural(cromossomoScores);
-		int tamanho_inicial = novaGeracao.size();
-		while(novaGeracao.size() < this.tamanho){
-			int pai = random.nextInt(tamanho_inicial);
-			int mae = random.nextInt(tamanho_inicial);
-			Cromossomo filho = novaGeracao.get(pai).crossOver(novaGeracao.get(mae));
-			filho = filho.mutacao();
-			novaGeracao.add(filho);
+		ArrayList<Cromossomo> pais = new ArrayList<Cromossomo>(cromossomoScores.keySet());
+		ArrayList<Cromossomo> novaGeracao = new ArrayList<Cromossomo>();
+		for( int i = 0; i < tamanho; i++){
+			HashMap<Cromossomo,Double> naBrigaPraVida = new HashMap<Cromossomo,Double>();
+			for( int h = 0 ; h < fracaoReducao; h++){
+				int index = random.nextInt(pais.size());
+				Cromossomo paiGuerreiro = pais.get(index);
+				Double scorePaiGuerreiro = cromossomoScores.get(paiGuerreiro);
+				naBrigaPraVida.put(paiGuerreiro, scorePaiGuerreiro);
+			}
+			Cromossomo sobrevivente = selecaoNatural(naBrigaPraVida);
+			novaGeracao.add(new Cromossomo(sobrevivente));
+		}
+		for(int i = 0, h = novaGeracao.size()-1; i<h; i++, h--){
+			novaGeracao.get(i).crossOver(novaGeracao.get(h));
+			novaGeracao.get(i).mutacao();
+			novaGeracao.get(h).mutacao();
 		}
 		return novaGeracao;
 	}
@@ -134,10 +159,10 @@ public class Natureza {
 				"	int moveParaFrente;\n" + 
 				"	int dist = 50; // distance to move when we're hit\n" + 
 				"	final float MAX_BULLET_POWER = 3;\n" + 
-				"	final int MAX_VELOCITY = 8;\n" + 
+				"	final int Q_VELOCITY = 2;\n" + 
 				"	final float MAX_DEGREE = 30;\n" + 
-				"	final int MAX_SIZE = 8;\n" + 
-				"	final int DIRECTIONS = 8;\n" + 
+				"	final int Q_DISTANCE = 9;\n" + 
+				"	final int DIRECTIONS = 2;\n" + 
 				"	double enemyX;\n" + 
 				"	double enemyY;\n" + 
 				"	double lastEnemyX;\n" + 
@@ -147,11 +172,11 @@ public class Natureza {
 				"	Pair[][][] slot;\n" + 
 				"	\n" + 
 				"	public Wolverine() {\n" + 
-				"		 this.slot = new Pair[MAX_VELOCITY+1][DIRECTIONS][MAX_SIZE+1];\n" + 
-				"	     fillSlot();\n" + 
-				"		 this.random = new Random();\n" + 
-				"		 this.moveParaFrente = 1;\n" + 
-				"		 this.scanDirection = 1;\n" + 
+				"		this.slot = new Pair[Q_VELOCITY][DIRECTIONS][Q_DISTANCE];\n" + 
+				"	    fillSlot();\n" + 
+				"		this.random = new Random();\n" + 
+				"		this.moveParaFrente = 1;\n" + 
+				"		this.scanDirection = 1;\n" + 
 				"	}\n" + 
 				"\n" + 
 				"	/**\n" + 
@@ -200,9 +225,13 @@ public class Natureza {
 				"	}\n" + 
 				"	\n" + 
 				"	private int distanceCategory(double distance){\n" + 
-				"		if(distance < 300) return 0;\n" + 
-				"		if(distance < 500) return 1;\n" + 
-				"		return 3;\n" + 
+				"		int category = (int) distance/8;\n" + 
+				"		category = Math.min(category,8);\n" + 
+				"		return category;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	private int velocityCategory(double velocity){\n" + 
+				"		return velocity > 0.1 ? 1 : 0;\n" + 
 				"	}\n" + 
 				"	/**\n" + 
 				"	 * onScannedRobot:  Fire!\n" + 
@@ -213,11 +242,11 @@ public class Natureza {
 				"		boolean direita = andandoDireita(e);\n" + 
 				"		int distanceCat = distanceCategory(e.getDistance());\n" + 
 				"		int pos = direita ? 1 : 0;\n" + 
-				"		int velocity = (int) e.getVelocity();\n" + 
+				"		int velocity = velocityCategory(e.getVelocity());\n" + 
 				"		Pair gene = slot[velocity][pos][distanceCat];\n" + 
 				"		double turnGunAmt = normalRelativeAngleDegrees(gene.second + e.getBearing() + getHeading() - getGunHeading());\n" + 
 				"		setTurnGunRight(turnGunAmt);\n" + 
-				"		if(getGunHeat() == 0 && turnGunAmt < 5){\n" + 
+				"		if(getGunHeat() == 0 && turnGunAmt < 5 && gene.first >= 0.1){\n" + 
 				"			fire(gene.first);\n" + 
 				"		}\n" + 
 				"		\n" + 
@@ -229,21 +258,7 @@ public class Natureza {
 				"	 * onHitByBullet:  Turn perpendicular to the bullet, and move a bit.\n" + 
 				"	 */\n" + 
 				"	public void onHitByBullet(HitByBulletEvent e) {\n" + 
-				"		turnRight(normalRelativeAngleDegrees(90 - (getHeading() - e.getHeading())));\n" + 
-				"\n" + 
-				"		ahead(dist);\n" + 
-				"		dist *= -1;\n" + 
-				"		scan();\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	/**\n" + 
-				"	 * onHitRobot:  Aim at it.  Fire Hard!\n" + 
-				"	 */\n" + 
-				"	public void onHitRobot(HitRobotEvent e) {\n" + 
-				"		double turnGunAmt = normalRelativeAngleDegrees(e.getBearing() + getHeading() - getGunHeading());\n" + 
-				"\n" + 
-				"		turnGunRight(turnGunAmt);\n" + 
-				"		fire(3);\n" + 
+				"		\n" + 
 				"	}\n" + 
 				"	\n" + 
 				"	private void update(ScannedRobotEvent e) {\n" + 

@@ -26,10 +26,10 @@ public class JapaRobot extends AdvancedRobot {
 	int moveParaFrente;
 	int dist = 50; // distance to move when we're hit
 	final float MAX_BULLET_POWER = 3;
-	final int MAX_VELOCITY = 8;
+	final int Q_VELOCITY = 2;
 	final float MAX_DEGREE = 30;
-	final int MAX_SIZE = 8;
-	final int DIRECTIONS = 8;
+	final int Q_DISTANCE = 9;
+	final int DIRECTIONS = 2;
 	double enemyX;
 	double enemyY;
 	double lastEnemyX;
@@ -39,11 +39,11 @@ public class JapaRobot extends AdvancedRobot {
 	Pair[][][] slot;
 	
 	public JapaRobot() {
-		 this.slot = new Pair[MAX_VELOCITY+1][DIRECTIONS][MAX_SIZE+1];
-	     fillSlot();
-		 this.random = new Random();
-		 this.moveParaFrente = 1;
-		 this.scanDirection = 1;
+		this.slot = new Pair[Q_VELOCITY][DIRECTIONS][Q_DISTANCE];
+	    fillSlot();
+		this.random = new Random();
+		this.moveParaFrente = 1;
+		this.scanDirection = 1;
 	}
 
 	/**
@@ -92,9 +92,13 @@ public class JapaRobot extends AdvancedRobot {
 	}
 	
 	private int distanceCategory(double distance){
-		if(distance < 300) return 0;
-		if(distance < 500) return 1;
-		return 3;
+		int category = (int) distance/8;
+		category = Math.min(category,8);
+		return category;
+	}
+	
+	private int velocityCategory(double velocity){
+		return velocity > 0.1 ? 1 : 0;
 	}
 	/**
 	 * onScannedRobot:  Fire!
@@ -105,11 +109,11 @@ public class JapaRobot extends AdvancedRobot {
 		boolean direita = andandoDireita(e);
 		int distanceCat = distanceCategory(e.getDistance());
 		int pos = direita ? 1 : 0;
-		int velocity = (int) e.getVelocity();
+		int velocity = velocityCategory(e.getVelocity());
 		Pair gene = slot[velocity][pos][distanceCat];
 		double turnGunAmt = normalRelativeAngleDegrees(gene.second + e.getBearing() + getHeading() - getGunHeading());
 		setTurnGunRight(turnGunAmt);
-		if(getGunHeat() == 0 && turnGunAmt < 5){
+		if(getGunHeat() == 0 && turnGunAmt < 5 && gene.first >= 0.1){
 			fire(gene.first);
 		}
 		
@@ -121,21 +125,7 @@ public class JapaRobot extends AdvancedRobot {
 	 * onHitByBullet:  Turn perpendicular to the bullet, and move a bit.
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		turnRight(normalRelativeAngleDegrees(90 - (getHeading() - e.getHeading())));
-
-		ahead(dist);
-		dist *= -1;
-		scan();
-	}
-
-	/**
-	 * onHitRobot:  Aim at it.  Fire Hard!
-	 */
-	public void onHitRobot(HitRobotEvent e) {
-		double turnGunAmt = normalRelativeAngleDegrees(e.getBearing() + getHeading() - getGunHeading());
-
-		turnGunRight(turnGunAmt);
-		fire(3);
+		
 	}
 	
 	private void update(ScannedRobotEvent e) {

@@ -9,60 +9,64 @@ import java.util.Random;
 
 public class Cromossomo {
 
-	final float MAX_BULLET_POWER = 3;
-	final int MAX_VELOCITY = 8;
-	final float MAX_DEGREE = 30;
-	final int MAX_SIZE = 8;
-	final int DIRECTIONS = 8;
-	Pair[][][] genes;
+	protected static final float MAX_BULLET_POWER = 3;
+	protected static final int VELOCITY = 2;
+	protected static final float MAX_DEGREE = 30;
+	protected static final int DISTANCE = 9;
+	protected static final int DIRECTIONS = 2;
+	protected Pair[][][] genes;
 	private Random random;
+	
 	public Cromossomo(){
 		random = new Random();
-		this.genes = new Pair[MAX_VELOCITY+1][DIRECTIONS][MAX_SIZE+1];
+		this.genes = new Pair[VELOCITY][DIRECTIONS][DISTANCE];
 	}
 	
-	public Cromossomo crossOver(Cromossomo x){
-		Cromossomo y = new Cromossomo();
-		y.genes = genes.clone();
-		int velocityLimit = random.nextInt(MAX_VELOCITY)+1;
-		int directionsLimit = random.nextInt(DIRECTIONS-1)+1;
-		int sizeLimit = random.nextInt(MAX_SIZE)+1;
-		for(int i = 0; i < velocityLimit; i++){
-			for(int h = 0; h < directionsLimit; h++){
-				for(int z = 0; z < sizeLimit; z++){
-					y.genes[i][h][z] = x.genes[i][h][z];
+	public Cromossomo(Cromossomo x){
+		this();
+		for(int i = 0; i < VELOCITY; i++){
+			for(int h = 0; h < DIRECTIONS; h++){
+				for(int z = 0; z < DISTANCE; z++){
+					this.genes[i][h][z] = x.genes[i][h][z];
 				}
 			}
 		}
-		return y;
 	}
 	
-	public Cromossomo mutacao(){
-		Cromossomo x = new Cromossomo();
-		x.genes = this.genes.clone();
-		for(int i = 0; i <= MAX_VELOCITY; i++){
+	public void crossOver(Cromossomo x){
+		Cromossomo y = new Cromossomo(this);
+		int velocity = random.nextInt(VELOCITY);
+		int direction = random.nextInt(DIRECTIONS);
+		int sizeLimit = random.nextInt(DISTANCE)+1;
+		for(int z = 0; z < sizeLimit; z++){
+			this.genes[velocity][direction][z] = x.genes[velocity][direction][z];
+			x.genes[velocity][direction][z] = y.genes[velocity][direction][z];
+		}
+	}
+	
+	public void mutacao(){
+		for(int i = 0; i < VELOCITY; i++){
 			for(int h = 0; h < DIRECTIONS; h++){
-				for(int z = 0; z <= MAX_SIZE; z++){
-					if(random.nextDouble() < 0.01){
-						double newFirst = x.genes[i][h][z].first+random.nextDouble()-random.nextDouble();
+				for(int z = 0; z < DISTANCE; z++){
+					if(random.nextDouble() < 0.05){
+						double newFirst = genes[i][h][z].first+random.nextDouble()-random.nextDouble();
 						newFirst = Math.max(newFirst,0);
 						newFirst = Math.min(newFirst,MAX_BULLET_POWER);
-						double newSecond = x.genes[i][h][z].second+random.nextDouble()-random.nextDouble();
+						double newSecond = genes[i][h][z].second+3*random.nextDouble()-3*random.nextDouble();
 						newSecond = Math.max(newSecond,0);
 						newSecond = Math.min(newSecond,MAX_DEGREE);
-						x.genes[i][h][z] = new Pair(newFirst,newSecond);
+						genes[i][h][z] = new Pair(newFirst,newSecond);
 					}
 				}
 			}
 		}
-		return x;
 	}
 	
 	public void randomPopulate(){
 		Random random = new Random();
-		for(int i = 0; i <= MAX_VELOCITY; i++){
+		for(int i = 0; i < VELOCITY; i++){
 			for(int h = 0; h < DIRECTIONS; h++){
-				for(int z = 0; z <= MAX_SIZE; z++){
+				for(int z = 0; z < DISTANCE; z++){
 					this.genes[i][h][z] = new Pair(random.nextDouble()+random.nextInt(3),random.nextDouble()+random.nextInt(61)-30);
 				}
 			}
@@ -71,9 +75,9 @@ public class Cromossomo {
 	
 	public String toString(){
 		String saida = "";
-		for(int i = 0; i <= MAX_VELOCITY; i++){
+		for(int i = 0; i < VELOCITY; i++){
 			for(int h = 0; h < DIRECTIONS; h++){
-				for(int z = 0; z <= MAX_SIZE; z++){
+				for(int z = 0; z < DISTANCE; z++){
 					saida += "this.slot["+i+"]["+h+"]["+z+"] = new Pair("+this.genes[i][h][z].first+","+this.genes[i][h][z].second+");\n";
 					
 				}
@@ -82,7 +86,7 @@ public class Cromossomo {
 		return saida;
 	}
 
-	class Pair{
+	public class Pair{
 		double first;
 		double second;
 		public Pair(double a , double b){

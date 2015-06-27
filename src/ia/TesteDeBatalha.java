@@ -1,6 +1,9 @@
 package ia;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -31,20 +34,52 @@ public class TesteDeBatalha {
 	public TesteDeBatalha(){
 		this.engine = new RobocodeEngine(new File("./")); // Run from
 		engine.setVisible(false);
-		natureza = new Natureza(1000,10);
+		natureza = new Natureza(200,10);
 		battleListener = new MyBattleListener();
 		engine.addBattleListener(battleListener);
 	}
 	
 	public void simularPopulacao(){
+		File f = new File("TesteDeBatalha.log");
+		File f2 = new File("MelhorRobo.log");
+		try {
+			f.delete();
+			f.createNewFile();
+			f2.delete();
+			f2.createNewFile();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		try {
+		FileWriter fw = new FileWriter(f);
+		PrintWriter escritor = new PrintWriter(fw);
+		FileWriter fw2 = new FileWriter(f);
+		PrintWriter escritor2 = new PrintWriter(fw2);
+			
 		ArrayList<Cromossomo> populacao = natureza.criarPopulacaoInicial();
-		for(int i = 0; i < 100; i++){
+		Cromossomo melhor = null;
+		double melhorScore = -1;
+		for(int i = 0; i < 20; i++){
 			HashMap<Cromossomo,Double> scores = new HashMap<Cromossomo,Double>();
+			int cont = 0;
 			for(Cromossomo cromossomo: populacao){
+				if(melhor == null) melhor = cromossomo;
 				double score = batalhar(cromossomo,5);
+				if(score > melhorScore) melhor = cromossomo;
+				String log = "" + i + " "+ (cont++) + " " + score;
+				escritor.println(log);
+				escritor.flush();
+				System.out.println(log);
 				scores.put(cromossomo, new Double(score));
 			}
 			populacao = natureza.proximaGeracao(scores);
+		}
+		escritor2.println(melhor.toString());
+		escritor2.flush();
+		escritor.close();
+		escritor2.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -69,7 +104,6 @@ public class TesteDeBatalha {
 		public void onBattleCompleted(BattleCompletedEvent event) {
 			BattleResults[] results = event.getIndexedResults();
 			lastScore = results[0].getScore();
-			System.out.println(lastScore);
 		}
 
 		@Override
