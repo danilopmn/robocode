@@ -34,34 +34,30 @@ public class TesteDeBatalha {
 	public TesteDeBatalha(){
 		this.engine = new RobocodeEngine(new File("./")); // Run from
 		engine.setVisible(false);
-		natureza = new Natureza(200,10);
+		natureza = new Natureza(500,25);
 		battleListener = new MyBattleListener();
 		engine.addBattleListener(battleListener);
 	}
 	
 	public void simularPopulacao(){
 		File f = new File("TesteDeBatalha.log");
-		File f2 = new File("MelhorRobo.log");
 		try {
 			f.delete();
 			f.createNewFile();
-			f2.delete();
-			f2.createNewFile();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		try {
 		FileWriter fw = new FileWriter(f);
 		PrintWriter escritor = new PrintWriter(fw);
-		FileWriter fw2 = new FileWriter(f);
-		PrintWriter escritor2 = new PrintWriter(fw2);
 			
 		ArrayList<Cromossomo> populacao = natureza.criarPopulacaoInicial();
 		Cromossomo melhor = null;
 		double melhorScore = -1;
-		for(int i = 0; i < 20; i++){
+		for(int i = 0; i < 40; i++){
 			HashMap<Cromossomo,Double> scores = new HashMap<Cromossomo,Double>();
 			int cont = 0;
+			melhorScore = -1;
 			for(Cromossomo cromossomo: populacao){
 				if(melhor == null) melhor = cromossomo;
 				double score = batalhar(cromossomo,5);
@@ -73,11 +69,17 @@ public class TesteDeBatalha {
 				scores.put(cromossomo, new Double(score));
 			}
 			populacao = natureza.proximaGeracao(scores);
+			
+			File f2 = new File("MelhorRobo"+i+".log");
+			f2.delete();
+			f2.createNewFile();
+			FileWriter fw2 = new FileWriter(f2);
+			PrintWriter escritor2 = new PrintWriter(fw2);
+			escritor2.println(melhor.toString());
+			escritor2.flush();
+			escritor2.close();
 		}
-		escritor2.println(melhor.toString());
-		escritor2.flush();
 		escritor.close();
-		escritor2.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

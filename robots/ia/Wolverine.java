@@ -137,8 +137,11 @@ public class Wolverine extends AdvancedRobot {
 	    lastEnemyY = enemyY;
 	    enemyX = getX() + Math.sin(Math.toRadians(absBearingDeg)) * e.getDistance();
 	    enemyY = getY() + Math.cos(Math.toRadians(absBearingDeg)) * e.getDistance();
-	    enemyAbsoluteHeading = absoluteBearing(lastEnemyX,lastEnemyY,enemyX,enemyY);
-	    
+	    if(e.getVelocity() < 0.1){
+	    	enemyAbsoluteHeading = absoluteBearing(lastEnemyX,lastEnemyY,enemyX,enemyY);
+	    } else {
+	    	enemyAbsoluteHeading = e.getHeading();
+	    }
 	}
 	
 	double absoluteBearing(double x1, double y1, double x2, double y2) {
@@ -175,40 +178,40 @@ public class Wolverine extends AdvancedRobot {
 		}
 	}
 	
-	private void fillSlot(){this.slot[0][0][0] = new Pair(3.0,20.0);
-this.slot[0][0][1] = new Pair(3.0,20.0);
-this.slot[0][0][2] = new Pair(3.0,20.0);
-this.slot[0][0][3] = new Pair(3.0,20.0);
-this.slot[0][0][4] = new Pair(3.0,20.0);
-this.slot[0][0][5] = new Pair(3.0,20.0);
-this.slot[0][0][6] = new Pair(3.0,20.0);
-this.slot[0][0][7] = new Pair(3.0,20.0);
-this.slot[0][0][8] = new Pair(3.0,20.0);
-this.slot[0][1][0] = new Pair(2.0,15.0);
-this.slot[0][1][1] = new Pair(2.0,15.0);
-this.slot[0][1][2] = new Pair(2.0,15.0);
-this.slot[0][1][3] = new Pair(1.859230787384583,26.236405716279712);
-this.slot[0][1][4] = new Pair(3.0,20.0);
-this.slot[0][1][5] = new Pair(3.0,20.0);
-this.slot[0][1][6] = new Pair(3.0,20.0);
-this.slot[0][1][7] = new Pair(3.0,20.0);
-this.slot[0][1][8] = new Pair(3.0,20.0);
-this.slot[1][0][0] = new Pair(3.0,20.0);
-this.slot[1][0][1] = new Pair(3.0,20.0);
-this.slot[1][0][2] = new Pair(3.0,20.0);
-this.slot[1][0][3] = new Pair(3.0,20.0);
-this.slot[1][0][4] = new Pair(3.0,20.0);
-this.slot[1][0][5] = new Pair(3.0,20.0);
-this.slot[1][0][6] = new Pair(3.0,20.0);
-this.slot[1][0][7] = new Pair(3.0,20.0);
-this.slot[1][0][8] = new Pair(3.0,20.0);
-this.slot[1][1][0] = new Pair(3.0,18.706062384468176);
-this.slot[1][1][1] = new Pair(3.0,18.554904255212627);
-this.slot[1][1][2] = new Pair(3.0,20.0);
-this.slot[1][1][3] = new Pair(3.0,20.0);
-this.slot[1][1][4] = new Pair(3.0,20.0);
-this.slot[1][1][5] = new Pair(3.0,20.0);
-this.slot[1][1][6] = new Pair(3.0,20.0);
-this.slot[1][1][7] = new Pair(3.0,20.10777861185833);
-this.slot[1][1][8] = new Pair(3.0,20.0);
+	private void fillSlot(){this.slot[0][0][0] = new Pair(2.6695810925808043,0.0);
+this.slot[0][0][1] = new Pair(1.2484280623000013,0.4680936845942564);
+this.slot[0][0][2] = new Pair(1.0189276063764832,21.12806706187906);
+this.slot[0][0][3] = new Pair(2.9213938276446823,15.880639559546998);
+this.slot[0][0][4] = new Pair(1.0260293398730491,0.06624280870067611);
+this.slot[0][0][5] = new Pair(1.2260272052344474,0.0);
+this.slot[0][0][6] = new Pair(1.422751192457472,0.0);
+this.slot[0][0][7] = new Pair(1.9962679855128465,0.0);
+this.slot[0][0][8] = new Pair(1.0210365491519977,0.004090669727267016);
+this.slot[0][1][0] = new Pair(0.8738449718208164,0.0);
+this.slot[0][1][1] = new Pair(3.0,25.93159348580298);
+this.slot[0][1][2] = new Pair(0.15309800551985586,13.51039790665573);
+this.slot[0][1][3] = new Pair(1.2973903996194833,0.369972889788025);
+this.slot[0][1][4] = new Pair(2.2055683003165694,1.0490172926018775);
+this.slot[0][1][5] = new Pair(1.2747531725857995,0.0);
+this.slot[0][1][6] = new Pair(0.8308916512933247,26.160213104822812);
+this.slot[0][1][7] = new Pair(0.06771897447606934,0.0);
+this.slot[0][1][8] = new Pair(0.7693120360944459,1.4237017600635475);
+this.slot[1][0][0] = new Pair(2.27245489344635,18.69218694838215);
+this.slot[1][0][1] = new Pair(2.2883229954715203,15.49407187041761);
+this.slot[1][0][2] = new Pair(0.30561094919034415,17.417137464907324);
+this.slot[1][0][3] = new Pair(0.35894658960016645,-10.19367194969469);
+this.slot[1][0][4] = new Pair(0.0,0.7732663888340546);
+this.slot[1][0][5] = new Pair(1.0373431568121336,16.731528258480314);
+this.slot[1][0][6] = new Pair(1.7868052489942263,16.694778168415464);
+this.slot[1][0][7] = new Pair(1.3807848635674582,0.0);
+this.slot[1][0][8] = new Pair(1.9639169067248141,28.210943080422812);
+this.slot[1][1][0] = new Pair(2.8605509909209204,0.0);
+this.slot[1][1][1] = new Pair(0.7111942644325626,5.3933202901833415);
+this.slot[1][1][2] = new Pair(1.5263360939139807,12.429354276582323);
+this.slot[1][1][3] = new Pair(2.8202754165095953,7.629995263961135);
+this.slot[1][1][4] = new Pair(2.7836207308046967,-1.6324878370138727);
+this.slot[1][1][5] = new Pair(2.055055011391649,4.6103266087781325);
+this.slot[1][1][6] = new Pair(0.9347168127145444,11.253540572857101);
+this.slot[1][1][7] = new Pair(0.015795724056035798,14.986264272784055);
+this.slot[1][1][8] = new Pair(2.764536929683822,21.98101965889552);
 }}

@@ -48,7 +48,7 @@ public class Natureza {
 				populacao.add(x);
 			}
 		}
-		for(int i = 0; i < tamanho - populacao.size(); i++){
+		for(int i = 0; tamanho > populacao.size(); i++){
 			Cromossomo x = new Cromossomo();
 			x.randomPopulate();
 			populacao.add(x);
@@ -270,8 +270,11 @@ public class Natureza {
 				"	    lastEnemyY = enemyY;\n" + 
 				"	    enemyX = getX() + Math.sin(Math.toRadians(absBearingDeg)) * e.getDistance();\n" + 
 				"	    enemyY = getY() + Math.cos(Math.toRadians(absBearingDeg)) * e.getDistance();\n" + 
-				"	    enemyAbsoluteHeading = absoluteBearing(lastEnemyX,lastEnemyY,enemyX,enemyY);\n" + 
-				"	    \n" + 
+				"	    if(e.getVelocity() < 0.1){\n" + 
+				"	    	enemyAbsoluteHeading = absoluteBearing(lastEnemyX,lastEnemyY,enemyX,enemyY);\n" + 
+				"	    } else {\n" + 
+				"	    	enemyAbsoluteHeading = e.getHeading();\n" + 
+				"	    }\n" + 
 				"	}\n" + 
 				"	\n" + 
 				"	double absoluteBearing(double x1, double y1, double x2, double y2) {\n" + 
